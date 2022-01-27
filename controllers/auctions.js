@@ -184,3 +184,27 @@ module.exports.placeBid = async (req, res) => {
     res.redirect(`/auctions/${auctionId}`);
   }
 };
+
+
+module.exports.getBids = async (req, res) => {
+  const username = req.user.username;
+  const auctionId = req.params.id;
+
+  try {
+    const response = await axios.get(`${NE_BASE_URL}/rooms/${auctionId}`, {
+      auth: { username },
+    });
+
+    const allBids = response.data.Bids;
+    res.render('/auctions/showBids', { allBids });
+
+  } catch(error) {
+    if (error.isAxiosError) {
+      req.flash("error", error.response.data.message);
+    } else {
+      req.flash("error", "Failed to retrieve bid history.")
+    }
+    res.redirect(`/auctions/${auctionId}`);
+  }
+
+} 
